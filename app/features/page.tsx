@@ -1,6 +1,7 @@
 import Features from "@/components/features-1";
 import FooterSection from "@/components/footer";
 import { HeroHeader } from "@/components/header";
+import DisplayCards from "@/components/ui/display-cards";
 
 
 export default function FeaturesPage() {
@@ -8,6 +9,7 @@ export default function FeaturesPage() {
       <>
         <HeroHeader />
         <Features />
+        <DisplayCards />
         <FooterSection />
       </>
   )

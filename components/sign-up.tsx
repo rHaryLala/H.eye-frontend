@@ -1,15 +1,67 @@
+'use client'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { LogoIcon } from '@/components/logo'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import Link from 'next/link'
+import AuthService from '@/lib/auth-service'
 
 export default function LoginPage() {
+    const router = useRouter()
+    const [formData, setFormData] = useState({
+        firstname: '',
+        lastname: '',
+        email: '',
+        pwd: ''
+    })
+    const [error, setError] = useState('')
+    const [success, setSuccess] = useState(false)
+    const [loading, setLoading] = useState(false)
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value })
+    }
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        setLoading(true)
+        setError('')
+        setSuccess(false)
+        
+        try {
+            const success = await AuthService.register(formData)
+            
+            if (success) {
+                setSuccess(true)
+                setError('')
+                // Redirection après un court délai
+                setTimeout(() => {
+                    router.push('/login')
+                }, 1500)
+            } else {
+                setError('Une erreur est survenue lors de l\'inscription.')
+            }
+        } catch (err: any) {
+            console.error(err)
+            if (err.response && err.response.data && err.response.data.error) {
+                setError(err.response.data.error)
+            } else {
+                setError('Erreur serveur. Veuillez réessayer plus tard.')
+            }
+        } finally {
+            setLoading(false)
+        }
+    }
+
+
     return (
         <section className="flex min-h-screen bg-zinc-50 px-4 py-16 md:py-32 dark:bg-transparent">
             <form
                 action=""
-                className="bg-muted m-auto h-fit w-full max-w-sm overflow-hidden rounded-[calc(var(--radius)+.125rem)] border shadow-md shadow-zinc-950/5 dark:[--color-muted:var(--color-zinc-900)]">
+                className="bg-muted m-auto h-fit w-full max-w-sm overflow-hidden rounded-[calc(var(--radius)+.125rem)] border shadow-md shadow-zinc-950/5 dark:[--color-muted:var(--color-zinc-900)]"
+                onSubmit={handleSubmit}>
                 <div className="bg-card -m-px rounded-[calc(var(--radius)+.125rem)] border p-8 pb-6">
                     <div className="text-center">
                         <Link
@@ -35,6 +87,8 @@ export default function LoginPage() {
                                     required
                                     name="firstname"
                                     id="firstname"
+                                    value={formData.firstname}
+                                    onChange={handleChange}
                                 />
                             </div>
                             <div className="space-y-2">
@@ -48,6 +102,8 @@ export default function LoginPage() {
                                     required
                                     name="lastname"
                                     id="lastname"
+                                    value={formData.lastname}
+                                    onChange={handleChange}
                                 />
                             </div>
                         </div>
@@ -56,13 +112,15 @@ export default function LoginPage() {
                             <Label
                                 htmlFor="email"
                                 className="block text-sm">
-                                Username
+                                Email
                             </Label>
                             <Input
                                 type="email"
                                 required
                                 name="email"
                                 id="email"
+                                value={formData.email}
+                                onChange={handleChange}
                             />
                         </div>
 
@@ -90,10 +148,17 @@ export default function LoginPage() {
                                 name="pwd"
                                 id="pwd"
                                 className="input sz-md variant-mixed"
+                                value={formData.pwd}
+                                onChange={handleChange}
                             />
+                            {error && <p className="text-red-500 text-sm">{error}</p>}
+                            {success && <p className="text-green-500 text-sm">Account created! Redirecting...</p>}
+
                         </div>
 
-                        <Button className="w-full">Sign Up</Button>
+                        <Button className="w-full" type="submit" disabled={loading}>
+                            {loading ? 'Inscription en cours...' : 'Sign Up'}
+                        </Button>
                     </div>
 
                     <div className="my-6 grid grid-cols-[1fr_auto_1fr] items-center gap-3">

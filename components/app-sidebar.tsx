@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useEffect, useState } from "react"
 import {
   IconCamera,
   IconChartBar,
@@ -18,6 +19,7 @@ import {
   IconSettings,
   IconUsers,
 } from "@tabler/icons-react"
+import AuthService from "@/lib/auth-service"
 
 import { NavDocuments } from "@/components/nav-documents"
 import { NavMain } from "@/components/nav-main"
@@ -33,12 +35,14 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 
+const defaultUser = {
+  name: "Utilisateur",
+  email: "utilisateur@exemple.com",
+  avatar: "https://ui-avatars.com/api/?name=Utilisateur&background=random",
+};
+
 const data = {
-  user: {
-    name: "hary",
-    email: "haryrabenamna@gmail.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
+  user: defaultUser,
   navMain: [
     {
       title: "Dashboard",
@@ -46,7 +50,7 @@ const data = {
       icon: IconDashboard,
     },
     {
-      title: "Lifecycle",
+      title: "Attendance",
       url: "#",
       icon: IconListDetails,
     },
@@ -151,6 +155,57 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const [userData, setUserData] = useState(defaultUser);
+  const [refreshCounter, setRefreshCounter] = useState(0);
+  
+  // Fonction pour forcer le rafraîchissement des données utilisateur
+  const refreshUserData = () => {
+    setRefreshCounter(prev => prev + 1);
+  };
+
+  // Effet pour écouter les changements de stockage (login/logout)
+  useEffect(() => {
+    const handleStorageChange = () => {
+      refreshUserData();
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Vérifier toutes les 2 secondes si le token a changé
+    const intervalId = setInterval(() => {
+      const isAuthenticated = !!localStorage.getItem('accessToken');
+      if (isAuthenticated) {
+        refreshUserData();
+      }
+    }, 2000);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(intervalId);
+    };
+  }, []);
+
+  // Effet pour récupérer les informations utilisateur
+  useEffect(() => {
+    // Récupérer les informations de l'utilisateur à partir du token JWT
+    console.log('AppSidebar useEffect - Récupération des informations utilisateur');
+    const userInfo = AuthService.getUserInfo();
+    console.log('AppSidebar useEffect - userInfo récupéré:', userInfo);
+    
+    if (userInfo) {
+      const username = userInfo.name || userInfo.username;
+      const newUserData = {
+        name: username || 'Utilisateur',  // Assurer qu'il y a toujours un nom
+        email: userInfo.email || 'utilisateur@exemple.com',
+        avatar: userInfo.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(username || 'Utilisateur')}&background=random`,
+      };
+      console.log('AppSidebar useEffect - Mise à jour userData avec:', newUserData);
+      setUserData(newUserData);
+    }
+  }, [refreshCounter]);
+  
+  console.log('AppSidebar render - userData actuel:', userData);
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -174,7 +229,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={userData} />
       </SidebarFooter>
     </Sidebar>
   )
