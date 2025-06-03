@@ -43,7 +43,7 @@ export default function HeroSection() {
                   className="mt-12 flex flex-col items-center justify-center gap-2 sm:flex-row lg:justify-start"
                 >
                   <Button asChild size="lg" className="px-5 text-base">
-                    <Link href="/login">
+                    <Link href="/dashboard">
                       <span className="text-nowrap">Start to use</span>
                     </Link>
                   </Button>

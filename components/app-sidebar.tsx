@@ -36,8 +36,8 @@ import {
 } from "@/components/ui/sidebar"
 
 const defaultUser = {
-  name: "Utilisateur",
-  email: "utilisateur@exemple.com",
+  name: "Hary Lala Rabenaman",
+  email: "rabenamanahary@gmail.com",
   avatar: "https://ui-avatars.com/api/?name=Utilisateur&background=random",
 };
 
@@ -46,27 +46,27 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
+      url: "/dashboard",
       icon: IconDashboard,
     },
     {
       title: "Attendance",
-      url: "#",
+      url: "/attendance",
       icon: IconListDetails,
     },
     {
-      title: "Analytics",
-      url: "#",
+      title: "Surveillance",
+      url: "/camera",
       icon: IconChartBar,
     },
     {
-      title: "Projects",
-      url: "#",
+      title: "History",
+      url: "/history",
       icon: IconFolder,
     },
     {
-      title: "Team",
-      url: "#",
+      title: "Person",
+      url: "/user",
       icon: IconUsers,
     },
   ],
@@ -121,12 +121,12 @@ const data = {
   navSecondary: [
     {
       title: "Settings",
-      url: "#",
+      url: "/settings",
       icon: IconSettings,
     },
     {
       title: "Get Help",
-      url: "#",
+      url: "/help",
       icon: IconHelp,
     },
     {
@@ -138,7 +138,7 @@ const data = {
   documents: [
     {
       name: "Data Library",
-      url: "#",
+      url: "/library",
       icon: IconDatabase,
     },
     {
@@ -195,8 +195,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     if (userInfo) {
       const username = userInfo.name || userInfo.username;
       const newUserData = {
-        name: username || 'Utilisateur',  // Assurer qu'il y a toujours un nom
-        email: userInfo.email || 'utilisateur@exemple.com',
+        name: username || 'Hary Lala Rabenamana', 
+        email: userInfo.email || 'rabenamanahary@gmail.com',
         avatar: userInfo.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(username || 'Utilisateur')}&background=random`,
       };
       console.log('AppSidebar useEffect - Mise à jour userData avec:', newUserData);
@@ -215,7 +215,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <a href="#">
+              <a href="/">
                 <IconInnerShadowTop className="!size-5" />
                 <span className="text-base font-semibold">H. eye</span>
               </a>

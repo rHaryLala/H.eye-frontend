@@ -4,11 +4,11 @@ import Link from 'next/link'
 const links = [
     {
         title: 'Features',
-        href: '#',
+        href: '/features',
     },
     {
         title: 'Solution',
-        href: '#',
+        href: '/solution',
     },
     {
         title: 'Customers',
@@ -16,7 +16,7 @@ const links = [
     },
     {
         title: 'Pricing',
-        href: '#',
+        href: '/pricing',
     },
     {
         title: 'Help',
@@ -24,7 +24,7 @@ const links = [
     },
     {
         title: 'About',
-        href: '#',
+        href: '/about',
     },
 ]
 
