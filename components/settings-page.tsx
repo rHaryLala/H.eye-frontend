@@ -40,11 +40,14 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
+import { useLanguage } from "@/contexts/language-contexts"
+
+type Language = "en" | "fr" | "es" | "de" | "pt" | "zh" | "ja"
 
 export default function SettingsPage() {
+  const { language, setLanguage, t } = useLanguage()
   const [activeTab, setActiveTab] = useState("profile")
   const [theme, setTheme] = useState("system")
-  const [language, setLanguage] = useState("english")
   const [sessionTimeout, setSessionTimeout] = useState("30")
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false)
   const [emailNotifications, setEmailNotifications] = useState(true)
@@ -58,14 +61,28 @@ export default function SettingsPage() {
     // Here you would save the settings to your backend
   }
 
+  const handleLanguageChange = (newLanguage: string) => {
+    setLanguage(newLanguage as Language)
+  }
+
+  const languageOptions = [
+    { value: "en", label: t("language.english") },
+    { value: "fr", label: t("language.french") },
+    { value: "de", label: t("language.german") },
+    { value: "es", label: t("language.spanish") },
+    { value: "pt", label: t("language.portuguese") },
+    { value: "zh", label: t("language.chinese") },
+    { value: "ja", label: t("language.japanese") },
+  ]
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-black dark:to-gray-800">
       <div className="container mx-auto py-12 px-4 md:px-6">
         <div className="mb-8">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 via-black to-gray-800 dark:from-white dark:via-gray-100 dark:to-gray-300 bg-clip-text text-transparent">
-            Settings
+            {t("settings.title")}
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">Manage your account settings and preferences</p>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">{t("settings.subtitle")}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-[250px_1fr] gap-8">
@@ -83,7 +100,7 @@ export default function SettingsPage() {
                     }`}
                   >
                     <User className="h-5 w-5" />
-                    <span>Profile</span>
+                    <span>{t("nav.profile")}</span>
                     <ChevronRight className="h-4 w-4 ml-auto" />
                   </button>
                   <Separator className="bg-gray-200 dark:bg-gray-700" />
@@ -96,7 +113,7 @@ export default function SettingsPage() {
                     }`}
                   >
                     <UserCog className="h-5 w-5" />
-                    <span>Account</span>
+                    <span>{t("nav.account")}</span>
                     <ChevronRight className="h-4 w-4 ml-auto" />
                   </button>
                   <Separator className="bg-gray-200 dark:bg-gray-700" />
@@ -109,7 +126,7 @@ export default function SettingsPage() {
                     }`}
                   >
                     <Palette className="h-5 w-5" />
-                    <span>Appearance</span>
+                    <span>{t("nav.appearance")}</span>
                     <ChevronRight className="h-4 w-4 ml-auto" />
                   </button>
                   <Separator className="bg-gray-200 dark:bg-gray-700" />
@@ -122,7 +139,7 @@ export default function SettingsPage() {
                     }`}
                   >
                     <Bell className="h-5 w-5" />
-                    <span>Notifications</span>
+                    <span>{t("nav.notifications")}</span>
                     <ChevronRight className="h-4 w-4 ml-auto" />
                   </button>
                   <Separator className="bg-gray-200 dark:bg-gray-700" />
@@ -135,7 +152,7 @@ export default function SettingsPage() {
                     }`}
                   >
                     <Shield className="h-5 w-5" />
-                    <span>Security</span>
+                    <span>{t("nav.security")}</span>
                     <ChevronRight className="h-4 w-4 ml-auto" />
                   </button>
                   <Separator className="bg-gray-200 dark:bg-gray-700" />
@@ -148,7 +165,7 @@ export default function SettingsPage() {
                     }`}
                   >
                     <Globe className="h-5 w-5" />
-                    <span>Advanced</span>
+                    <span>{t("nav.advanced")}</span>
                     <ChevronRight className="h-4 w-4 ml-auto" />
                   </button>
                 </nav>
@@ -164,13 +181,13 @@ export default function SettingsPage() {
                     </div>
                     <div>
                       <p className="font-medium text-gray-900 dark:text-gray-100">Hary Lala</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Administrator</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{t("role.admin")}</p>
                     </div>
                   </div>
                   <Separator className="bg-gray-200 dark:bg-gray-700" />
                   <Button variant="outline" className="w-full border-gray-300 dark:border-gray-600">
                     <LogOut className="h-4 w-4 mr-2" />
-                    Sign Out
+                    {t("nav.signOut")}
                   </Button>
                 </div>
               </CardContent>
@@ -184,10 +201,10 @@ export default function SettingsPage() {
               <Card className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
                 <CardHeader>
                   <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                    Profile Information
+                    {t("profile.title")}
                   </CardTitle>
                   <CardDescription className="text-gray-600 dark:text-gray-400">
-                    Update your personal information and profile picture
+                    {t("profile.subtitle")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -197,22 +214,30 @@ export default function SettingsPage() {
                         <User className="h-16 w-16 text-gray-500 dark:text-gray-400" />
                       </div>
                       <Button variant="outline" className="w-full border-gray-300 dark:border-gray-600">
-                        Change Photo
+                        {t("profile.changePhoto")}
                       </Button>
                     </div>
                     <div className="flex-1 space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="firstName">First Name</Label>
-                          <Input id="firstName" defaultValue="Hary Lala" className="border-gray-300 dark:border-gray-600" />
+                          <Label htmlFor="firstName">{t("profile.firstName")}</Label>
+                          <Input
+                            id="firstName"
+                            defaultValue="Hary Lala"
+                            className="border-gray-300 dark:border-gray-600"
+                          />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="lastName">Last Name</Label>
-                          <Input id="lastName" defaultValue="Rabenamana" className="border-gray-300 dark:border-gray-600" />
+                          <Label htmlFor="lastName">{t("profile.lastName")}</Label>
+                          <Input
+                            id="lastName"
+                            defaultValue="Rabenamana"
+                            className="border-gray-300 dark:border-gray-600"
+                          />
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="email">Email Address</Label>
+                        <Label htmlFor="email">{t("profile.email")}</Label>
                         <Input
                           id="email"
                           type="email"
@@ -221,7 +246,7 @@ export default function SettingsPage() {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="phone">Phone Number</Label>
+                        <Label htmlFor="phone">{t("profile.phone")}</Label>
                         <Input
                           id="phone"
                           type="tel"
@@ -230,10 +255,10 @@ export default function SettingsPage() {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="bio">Bio</Label>
+                        <Label htmlFor="bio">{t("profile.bio")}</Label>
                         <Textarea
                           id="bio"
-                          placeholder="Write a short bio about yourself..."
+                          placeholder={t("profile.bioPlaceholder")}
                           className="min-h-[100px] border-gray-300 dark:border-gray-600"
                         />
                       </div>
@@ -246,7 +271,7 @@ export default function SettingsPage() {
                     className="bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black"
                   >
                     <Save className="h-4 w-4 mr-2" />
-                    Save Changes
+                    {t("common.save")}
                   </Button>
                 </CardFooter>
               </Card>
@@ -257,30 +282,30 @@ export default function SettingsPage() {
               <Card className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
                 <CardHeader>
                   <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                    Account Settings
+                    {t("account.title")}
                   </CardTitle>
                   <CardDescription className="text-gray-600 dark:text-gray-400">
-                    Manage your account preferences and settings
+                    {t("account.subtitle")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-4">
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Account Information</h3>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">{t("account.info")}</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="username">Username</Label>
+                        <Label htmlFor="username">{t("account.username")}</Label>
                         <Input id="username" defaultValue="bouh" className="border-gray-300 dark:border-gray-600" />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="role">Role</Label>
+                        <Label htmlFor="role">{t("account.role")}</Label>
                         <Select defaultValue="admin">
                           <SelectTrigger className="border-gray-300 dark:border-gray-600">
                             <SelectValue placeholder="Select a role" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="admin">Administrator</SelectItem>
-                            <SelectItem value="agent">Agent</SelectItem>
-                            <SelectItem value="user">User</SelectItem>
+                            <SelectItem value="admin">{t("role.admin")}</SelectItem>
+                            <SelectItem value="agent">{t("role.agent")}</SelectItem>
+                            <SelectItem value="user">{t("role.user")}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -290,7 +315,9 @@ export default function SettingsPage() {
                   <Separator className="bg-gray-200 dark:bg-gray-700" />
 
                   <div className="space-y-4">
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Connected Accounts</h3>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                      {t("account.connectedAccounts")}
+                    </h3>
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -304,11 +331,11 @@ export default function SettingsPage() {
                           </div>
                           <div>
                             <p className="font-medium text-gray-900 dark:text-gray-100">Google</p>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">Connected</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">{t("common.connected")}</p>
                           </div>
                         </div>
                         <Button variant="outline" className="border-gray-300 dark:border-gray-600">
-                          Disconnect
+                          {t("common.disconnect")}
                         </Button>
                       </div>
 
@@ -321,11 +348,11 @@ export default function SettingsPage() {
                           </div>
                           <div>
                             <p className="font-medium text-gray-900 dark:text-gray-100">Facebook</p>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">Not connected</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">{t("common.notConnected")}</p>
                           </div>
                         </div>
                         <Button variant="outline" className="border-gray-300 dark:border-gray-600">
-                          Connect
+                          {t("common.connect")}
                         </Button>
                       </div>
                     </div>
@@ -334,36 +361,33 @@ export default function SettingsPage() {
                   <Separator className="bg-gray-200 dark:bg-gray-700" />
 
                   <div className="space-y-4">
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Danger Zone</h3>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">{t("account.dangerZone")}</h3>
                     <div className="rounded-lg border border-red-200 dark:border-red-900 p-4">
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div>
-                          <h4 className="font-medium text-red-600 dark:text-red-400">Delete Account</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            Permanently delete your account and all of your data
-                          </p>
+                          <h4 className="font-medium text-red-600 dark:text-red-400">{t("account.deleteAccount")}</h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">{t("account.deleteDescription")}</p>
                         </div>
                         <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
                           <AlertDialogTrigger asChild>
-                            <Button variant="destructive">Delete Account</Button>
+                            <Button variant="destructive">{t("account.deleteAccount")}</Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
                             <AlertDialogHeader>
                               <AlertDialogTitle className="text-gray-900 dark:text-gray-100">
-                                Are you absolutely sure?
+                                {t("account.deleteConfirmTitle")}
                               </AlertDialogTitle>
                               <AlertDialogDescription className="text-gray-600 dark:text-gray-400">
-                                This action cannot be undone. This will permanently delete your account and remove all
-                                of your data from our servers.
+                                {t("account.deleteConfirmDescription")}
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300">
-                                Cancel
+                                {t("common.cancel")}
                               </AlertDialogCancel>
                               <AlertDialogAction className="bg-red-600 hover:bg-red-700 text-white">
                                 <Trash2 className="h-4 w-4 mr-2" />
-                                Delete Account
+                                {t("account.deleteAccount")}
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
@@ -378,7 +402,7 @@ export default function SettingsPage() {
                     className="bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black"
                   >
                     <Save className="h-4 w-4 mr-2" />
-                    Save Changes
+                    {t("common.save")}
                   </Button>
                 </CardFooter>
               </Card>
@@ -388,14 +412,16 @@ export default function SettingsPage() {
             {activeTab === "appearance" && (
               <Card className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
                 <CardHeader>
-                  <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100">Appearance</CardTitle>
+                  <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    {t("appearance.title")}
+                  </CardTitle>
                   <CardDescription className="text-gray-600 dark:text-gray-400">
-                    Customize the appearance of the application
+                    {t("appearance.subtitle")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-4">
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Theme</h3>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">{t("appearance.theme")}</h3>
                     <RadioGroup
                       defaultValue={theme}
                       onValueChange={setTheme}
@@ -408,7 +434,7 @@ export default function SettingsPage() {
                           className="flex flex-col items-center justify-between rounded-md border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 hover:bg-gray-50 dark:hover:bg-gray-700 peer-data-[state=checked]:border-gray-900 dark:peer-data-[state=checked]:border-gray-300 [&:has([data-state=checked])]:border-gray-900 dark:[&:has([data-state=checked])]:border-gray-300 cursor-pointer"
                         >
                           <Sun className="mb-3 h-6 w-6 text-gray-900 dark:text-gray-100" />
-                          <div className="font-medium text-gray-900 dark:text-gray-100">Light</div>
+                          <div className="font-medium text-gray-900 dark:text-gray-100">{t("appearance.light")}</div>
                         </Label>
                       </div>
                       <div>
@@ -418,7 +444,7 @@ export default function SettingsPage() {
                           className="flex flex-col items-center justify-between rounded-md border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 hover:bg-gray-50 dark:hover:bg-gray-700 peer-data-[state=checked]:border-gray-900 dark:peer-data-[state=checked]:border-gray-300 [&:has([data-state=checked])]:border-gray-900 dark:[&:has([data-state=checked])]:border-gray-300 cursor-pointer"
                         >
                           <Moon className="mb-3 h-6 w-6 text-gray-900 dark:text-gray-100" />
-                          <div className="font-medium text-gray-900 dark:text-gray-100">Dark</div>
+                          <div className="font-medium text-gray-900 dark:text-gray-100">{t("appearance.dark")}</div>
                         </Label>
                       </div>
                       <div>
@@ -428,7 +454,7 @@ export default function SettingsPage() {
                           className="flex flex-col items-center justify-between rounded-md border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 hover:bg-gray-50 dark:hover:bg-gray-700 peer-data-[state=checked]:border-gray-900 dark:peer-data-[state=checked]:border-gray-300 [&:has([data-state=checked])]:border-gray-900 dark:[&:has([data-state=checked])]:border-gray-300 cursor-pointer"
                         >
                           <Laptop className="mb-3 h-6 w-6 text-gray-900 dark:text-gray-100" />
-                          <div className="font-medium text-gray-900 dark:text-gray-100">System</div>
+                          <div className="font-medium text-gray-900 dark:text-gray-100">{t("appearance.system")}</div>
                         </Label>
                       </div>
                     </RadioGroup>
@@ -437,19 +463,17 @@ export default function SettingsPage() {
                   <Separator className="bg-gray-200 dark:bg-gray-700" />
 
                   <div className="space-y-4">
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Language</h3>
-                    <Select defaultValue={language} onValueChange={setLanguage}>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">{t("appearance.language")}</h3>
+                    <Select value={language} onValueChange={handleLanguageChange}>
                       <SelectTrigger className="w-full md:w-[240px] border-gray-300 dark:border-gray-600">
                         <SelectValue placeholder="Select a language" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="english">English</SelectItem>
-                        <SelectItem value="french">French</SelectItem>
-                        <SelectItem value="german">German</SelectItem>
-                        <SelectItem value="spanish">Spanish</SelectItem>
-                        <SelectItem value="portuguese">Portuguese</SelectItem>
-                        <SelectItem value="chinese">Chinese</SelectItem>
-                        <SelectItem value="japanese">Japanese</SelectItem>
+                        {languageOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -457,25 +481,25 @@ export default function SettingsPage() {
                   <Separator className="bg-gray-200 dark:bg-gray-700" />
 
                   <div className="space-y-4">
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Accessibility</h3>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                      {t("appearance.accessibility")}
+                    </h3>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <div>
                           <Label htmlFor="reduce-motion" className="font-medium text-gray-900 dark:text-gray-100">
-                            Reduce Motion
+                            {t("appearance.reduceMotion")}
                           </Label>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            Reduce the amount of animations in the interface
-                          </p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">{t("appearance.reduceMotionDesc")}</p>
                         </div>
                         <Switch id="reduce-motion" />
                       </div>
                       <div className="flex items-center justify-between">
                         <div>
                           <Label htmlFor="high-contrast" className="font-medium text-gray-900 dark:text-gray-100">
-                            High Contrast
+                            {t("appearance.highContrast")}
                           </Label>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Increase contrast between elements</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">{t("appearance.highContrastDesc")}</p>
                         </div>
                         <Switch id="high-contrast" />
                       </div>
@@ -488,7 +512,7 @@ export default function SettingsPage() {
                     className="bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black"
                   >
                     <Save className="h-4 w-4 mr-2" />
-                    Save Changes
+                    {t("common.save")}
                   </Button>
                 </CardFooter>
               </Card>
@@ -498,21 +522,23 @@ export default function SettingsPage() {
             {activeTab === "notifications" && (
               <Card className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
                 <CardHeader>
-                  <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100">Notifications</CardTitle>
+                  <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    {t("notifications.title")}
+                  </CardTitle>
                   <CardDescription className="text-gray-600 dark:text-gray-400">
-                    Manage how you receive notifications
+                    {t("notifications.subtitle")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-4">
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Email Notifications</h3>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">{t("notifications.email")}</h3>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <div>
                           <Label htmlFor="email-notifications" className="font-medium text-gray-900 dark:text-gray-100">
-                            Email Notifications
+                            {t("notifications.email")}
                           </Label>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Receive notifications via email</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">{t("notifications.emailDesc")}</p>
                         </div>
                         <Switch
                           id="email-notifications"
@@ -523,20 +549,20 @@ export default function SettingsPage() {
                       <div className="flex items-center justify-between">
                         <div>
                           <Label htmlFor="security-alerts" className="font-medium text-gray-900 dark:text-gray-100">
-                            Security Alerts
+                            {t("notifications.securityAlerts")}
                           </Label>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Receive security alerts via email</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            {t("notifications.securityAlertsDesc")}
+                          </p>
                         </div>
                         <Switch id="security-alerts" checked={securityAlerts} onCheckedChange={setSecurityAlerts} />
                       </div>
                       <div className="flex items-center justify-between">
                         <div>
                           <Label htmlFor="marketing-emails" className="font-medium text-gray-900 dark:text-gray-100">
-                            Marketing Emails
+                            {t("notifications.marketing")}
                           </Label>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            Receive marketing and promotional emails
-                          </p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">{t("notifications.marketingDesc")}</p>
                         </div>
                         <Switch id="marketing-emails" checked={marketingEmails} onCheckedChange={setMarketingEmails} />
                       </div>
@@ -546,16 +572,14 @@ export default function SettingsPage() {
                   <Separator className="bg-gray-200 dark:bg-gray-700" />
 
                   <div className="space-y-4">
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Push Notifications</h3>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">{t("notifications.push")}</h3>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <div>
                           <Label htmlFor="push-notifications" className="font-medium text-gray-900 dark:text-gray-100">
-                            Push Notifications
+                            {t("notifications.push")}
                           </Label>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            Receive push notifications on your devices
-                          </p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">{t("notifications.pushDesc")}</p>
                         </div>
                         <Switch
                           id="push-notifications"
@@ -569,14 +593,14 @@ export default function SettingsPage() {
                   <Separator className="bg-gray-200 dark:bg-gray-700" />
 
                   <div className="space-y-4">
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Notification Preferences</h3>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                      {t("notifications.preferences")}
+                    </h3>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-medium text-gray-900 dark:text-gray-100">New User Registration</p>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            When a new user registers in the system
-                          </p>
+                          <p className="font-medium text-gray-900 dark:text-gray-100">{t("notifications.newUser")}</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">{t("notifications.newUserDesc")}</p>
                         </div>
                         <Select defaultValue="email">
                           <SelectTrigger className="w-[180px] border-gray-300 dark:border-gray-600">
@@ -592,8 +616,12 @@ export default function SettingsPage() {
                       </div>
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-medium text-gray-900 dark:text-gray-100">System Updates</p>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">When system updates are available</p>
+                          <p className="font-medium text-gray-900 dark:text-gray-100">
+                            {t("notifications.systemUpdates")}
+                          </p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            {t("notifications.systemUpdatesDesc")}
+                          </p>
                         </div>
                         <Select defaultValue="both">
                           <SelectTrigger className="w-[180px] border-gray-300 dark:border-gray-600">
@@ -616,7 +644,7 @@ export default function SettingsPage() {
                     className="bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black"
                   >
                     <Save className="h-4 w-4 mr-2" />
-                    Save Changes
+                    {t("common.save")}
                   </Button>
                 </CardFooter>
               </Card>
@@ -626,30 +654,34 @@ export default function SettingsPage() {
             {activeTab === "security" && (
               <Card className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
                 <CardHeader>
-                  <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100">Security</CardTitle>
+                  <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    {t("security.title")}
+                  </CardTitle>
                   <CardDescription className="text-gray-600 dark:text-gray-400">
-                    Manage your security settings and authentication methods
+                    {t("security.subtitle")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-4">
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Change Password</h3>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                      {t("security.changePassword")}
+                    </h3>
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="current-password">Current Password</Label>
+                        <Label htmlFor="current-password">{t("security.currentPassword")}</Label>
                         <Input id="current-password" type="password" className="border-gray-300 dark:border-gray-600" />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="new-password">New Password</Label>
+                        <Label htmlFor="new-password">{t("security.newPassword")}</Label>
                         <Input id="new-password" type="password" className="border-gray-300 dark:border-gray-600" />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="confirm-password">Confirm New Password</Label>
+                        <Label htmlFor="confirm-password">{t("security.confirmPassword")}</Label>
                         <Input id="confirm-password" type="password" className="border-gray-300 dark:border-gray-600" />
                       </div>
                       <Button className="bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black">
                         <Key className="h-4 w-4 mr-2" />
-                        Update Password
+                        {t("security.updatePassword")}
                       </Button>
                     </div>
                   </div>
@@ -660,11 +692,9 @@ export default function SettingsPage() {
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-                          Two-Factor Authentication
+                          {t("security.twoFactor")}
                         </h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Add an extra layer of security to your account
-                        </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{t("security.twoFactorDesc")}</p>
                       </div>
                       <Switch checked={twoFactorEnabled} onCheckedChange={setTwoFactorEnabled} />
                     </div>
@@ -678,11 +708,11 @@ export default function SettingsPage() {
                                 <p className="text-sm text-gray-500">QR Code Placeholder</p>
                               </div>
                             </div>
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Scan with authenticator app</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">{t("security.scanQR")}</p>
                           </div>
                           <div className="flex-1 space-y-4">
                             <div className="space-y-2">
-                              <Label htmlFor="backup-codes">Backup Codes</Label>
+                              <Label htmlFor="backup-codes">{t("security.backupCodes")}</Label>
                               <div className="grid grid-cols-2 gap-2">
                                 {Array.from({ length: 6 }).map((_, i) => (
                                   <div
@@ -694,12 +724,11 @@ export default function SettingsPage() {
                                 ))}
                               </div>
                               <p className="text-xs text-gray-600 dark:text-gray-400">
-                                Save these backup codes in a secure place. You can use them to sign in if you lose
-                                access to your authenticator app.
+                                {t("security.backupCodesDesc")}
                               </p>
                             </div>
                             <Button variant="outline" className="border-gray-300 dark:border-gray-600">
-                              Download Backup Codes
+                              {t("security.downloadBackup")}
                             </Button>
                           </div>
                         </div>
@@ -710,10 +739,12 @@ export default function SettingsPage() {
                   <Separator className="bg-gray-200 dark:bg-gray-700" />
 
                   <div className="space-y-4">
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Session Management</h3>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                      {t("security.sessionManagement")}
+                    </h3>
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="session-timeout">Session Timeout (minutes)</Label>
+                        <Label htmlFor="session-timeout">{t("security.sessionTimeout")}</Label>
                         <Select defaultValue={sessionTimeout} onValueChange={setSessionTimeout}>
                           <SelectTrigger
                             className="w-full md:w-[240px] border-gray-300 dark:border-gray-600"
@@ -722,17 +753,17 @@ export default function SettingsPage() {
                             <SelectValue placeholder="Select timeout duration" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="15">15 minutes</SelectItem>
-                            <SelectItem value="30">30 minutes</SelectItem>
-                            <SelectItem value="60">1 hour</SelectItem>
-                            <SelectItem value="120">2 hours</SelectItem>
-                            <SelectItem value="240">4 hours</SelectItem>
+                            <SelectItem value="15">15 {t("time.minutes")}</SelectItem>
+                            <SelectItem value="30">30 {t("time.minutes")}</SelectItem>
+                            <SelectItem value="60">1 {t("time.hour")}</SelectItem>
+                            <SelectItem value="120">2 {t("time.hours")}</SelectItem>
+                            <SelectItem value="240">4 {t("time.hours")}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
 
                       <div className="space-y-3">
-                        <h4 className="font-medium text-gray-900 dark:text-gray-100">Active Sessions</h4>
+                        <h4 className="font-medium text-gray-900 dark:text-gray-100">{t("security.activeSessions")}</h4>
                         <div className="space-y-3">
                           <div className="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-700">
                             <div className="flex items-center gap-3">
@@ -743,16 +774,16 @@ export default function SettingsPage() {
                                 <p className="font-medium text-gray-900 dark:text-gray-100">
                                   Windows PC - Microsoft Edge
                                   <Badge className="ml-2 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300 border-0">
-                                    Current
+                                    {t("security.current")}
                                   </Badge>
                                 </p>
                                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                                  Last active: Just now • Antanifotsy, Madagascar
+                                  {t("security.lastActive")}: {t("security.justNow")} • Antanifotsy, Madagascar
                                 </p>
                               </div>
                             </div>
                             <Button variant="ghost" className="text-gray-500">
-                              Sign Out
+                              {t("nav.signOut")}
                             </Button>
                           </div>
 
@@ -764,12 +795,12 @@ export default function SettingsPage() {
                               <div>
                                 <p className="font-medium text-gray-900 dark:text-gray-100">Pixel 7 Pro - Chrome</p>
                                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                                  Last active: 2 hours ago • Antanifotsy, Madagascar
+                                  {t("security.lastActive")}: 2 {t("time.hoursAgo")} • Antanifotsy, Madagascar
                                 </p>
                               </div>
                             </div>
                             <Button variant="ghost" className="text-gray-500">
-                              Sign Out
+                              {t("nav.signOut")}
                             </Button>
                           </div>
                         </div>
@@ -777,7 +808,7 @@ export default function SettingsPage() {
 
                       <Button variant="outline" className="border-gray-300 dark:border-gray-600">
                         <Lock className="h-4 w-4 mr-2" />
-                        Sign Out All Devices
+                        {t("security.signOutAll")}
                       </Button>
                     </div>
                   </div>
@@ -788,7 +819,7 @@ export default function SettingsPage() {
                     className="bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black"
                   >
                     <Save className="h-4 w-4 mr-2" />
-                    Save Changes
+                    {t("common.save")}
                   </Button>
                 </CardFooter>
               </Card>
@@ -799,29 +830,27 @@ export default function SettingsPage() {
               <Card className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
                 <CardHeader>
                   <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                    Advanced Settings
+                    {t("advanced.title")}
                   </CardTitle>
                   <CardDescription className="text-gray-600 dark:text-gray-400">
-                    Configure advanced system settings
+                    {t("advanced.subtitle")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-4">
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">API Access</h3>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">{t("advanced.apiAccess")}</h3>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <div>
                           <Label htmlFor="api-access" className="font-medium text-gray-900 dark:text-gray-100">
-                            Enable API Access
+                            {t("advanced.enableApi")}
                           </Label>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            Allow external applications to access your data
-                          </p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">{t("advanced.enableApiDesc")}</p>
                         </div>
                         <Switch id="api-access" />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="api-key">API Key</Label>
+                        <Label htmlFor="api-key">{t("advanced.apiKey")}</Label>
                         <div className="flex gap-2">
                           <Input
                             id="api-key"
@@ -830,7 +859,7 @@ export default function SettingsPage() {
                             className="flex-1 font-mono border-gray-300 dark:border-gray-600"
                           />
                           <Button variant="outline" className="border-gray-300 dark:border-gray-600">
-                            Regenerate
+                            {t("advanced.regenerate")}
                           </Button>
                         </div>
                       </div>
@@ -840,20 +869,18 @@ export default function SettingsPage() {
                   <Separator className="bg-gray-200 dark:bg-gray-700" />
 
                   <div className="space-y-4">
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Data Export</h3>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">{t("advanced.dataExport")}</h3>
                     <div className="space-y-3">
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Export all your data in various formats
-                      </p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{t("advanced.dataExportDesc")}</p>
                       <div className="flex flex-wrap gap-3">
                         <Button variant="outline" className="border-gray-300 dark:border-gray-600">
-                          Export as JSON
+                          {t("advanced.exportJson")}
                         </Button>
                         <Button variant="outline" className="border-gray-300 dark:border-gray-600">
-                          Export as CSV
+                          {t("advanced.exportCsv")}
                         </Button>
                         <Button variant="outline" className="border-gray-300 dark:border-gray-600">
-                          Export as PDF
+                          {t("advanced.exportPdf")}
                         </Button>
                       </div>
                     </div>
@@ -862,36 +889,34 @@ export default function SettingsPage() {
                   <Separator className="bg-gray-200 dark:bg-gray-700" />
 
                   <div className="space-y-4">
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">System Preferences</h3>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                      {t("advanced.systemPreferences")}
+                    </h3>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <div>
                           <Label htmlFor="analytics" className="font-medium text-gray-900 dark:text-gray-100">
-                            Usage Analytics
+                            {t("advanced.analytics")}
                           </Label>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            Allow us to collect anonymous usage data
-                          </p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">{t("advanced.analyticsDesc")}</p>
                         </div>
                         <Switch id="analytics" defaultChecked />
                       </div>
                       <div className="flex items-center justify-between">
                         <div>
                           <Label htmlFor="auto-updates" className="font-medium text-gray-900 dark:text-gray-100">
-                            Automatic Updates
+                            {t("advanced.autoUpdates")}
                           </Label>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            Automatically update the application when new versions are available
-                          </p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">{t("advanced.autoUpdatesDesc")}</p>
                         </div>
                         <Switch id="auto-updates" defaultChecked />
                       </div>
                       <div className="flex items-center justify-between">
                         <div>
                           <Label htmlFor="beta-features" className="font-medium text-gray-900 dark:text-gray-100">
-                            Beta Features
+                            {t("advanced.betaFeatures")}
                           </Label>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Enable experimental features</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">{t("advanced.betaFeaturesDesc")}</p>
                         </div>
                         <Switch id="beta-features" />
                       </div>
@@ -904,7 +929,7 @@ export default function SettingsPage() {
                     className="bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black"
                   >
                     <Save className="h-4 w-4 mr-2" />
-                    Save Changes
+                    {t("common.save")}
                   </Button>
                 </CardFooter>
               </Card>

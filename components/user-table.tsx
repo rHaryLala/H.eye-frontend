@@ -1,6 +1,5 @@
 "use client"
 
-import Link from 'next/link'
 import * as React from "react"
 import {
   type ColumnDef,
@@ -25,6 +24,15 @@ import {
   Trash2,
   UserIcon,
   UserPlus,
+  Mail,
+  Lock,
+  Camera,
+  Upload,
+  Eye,
+  EyeOff,
+  Check,
+  X,
+  AlertCircle,
 } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -51,8 +59,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import usersData from "../app/user/users.json" // Assuming you have a users.json file with user data
 
+// Import users data with fallback
+let usersData: any[] = []
+try {
+  usersData = require("../app/user/users.json")
+} catch (error) {
+  console.log("Users data file not found, using empty array")
+  usersData = []
+}
 
 export interface User {
   id: string
@@ -63,6 +78,15 @@ export interface User {
   status: "active" | "inactive"
   lastLogin: string
   createdAt: string
+}
+
+interface UserFormData {
+  firstName: string
+  lastName: string
+  email: string
+  password: string
+  role: string
+  profileImage: File | null
 }
 
 interface UserListProps {
@@ -79,6 +103,46 @@ export default function UserList({ onEditUser, onDeleteUser, onAddUser }: UserLi
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [globalFilter, setGlobalFilter] = React.useState("")
   const [deleteUserId, setDeleteUserId] = React.useState<string | null>(null)
+  const [editingUser, setEditingUser] = React.useState<User | null>(null)
+  const [editFormData, setEditFormData] = React.useState<Partial<User>>({})
+  const [showAddUserForm, setShowAddUserForm] = React.useState(false)
+
+  // Add User Form State
+  const [addFormData, setAddFormData] = React.useState<UserFormData>({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    role: "",
+    profileImage: null,
+  })
+  const [showPassword, setShowPassword] = React.useState(false)
+  const [emailValid, setEmailValid] = React.useState<boolean | null>(null)
+  const [passwordStrength, setPasswordStrength] = React.useState(0)
+  const [imagePreview, setImagePreview] = React.useState<string | null>(null)
+  const [dragActive, setDragActive] = React.useState(false)
+  const fileInputRef = React.useRef<HTMLInputElement>(null)
+
+  const roles = [
+    {
+      value: "admin",
+      label: "Admin",
+      description: "Full system access",
+      icon: "👑",
+    },
+    {
+      value: "agent",
+      label: "Agent",
+      description: "User management and monitoring",
+      icon: "🛡️",
+    },
+    {
+      value: "user",
+      label: "User",
+      description: "Standard system access",
+      icon: "👤",
+    },
+  ]
 
   const getRoleIcon = (role: string) => {
     switch (role) {
@@ -117,12 +181,182 @@ export default function UserList({ onEditUser, onDeleteUser, onAddUser }: UserLi
     }
   }
 
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email)
+  }
+
+  const calculatePasswordStrength = (password: string) => {
+    let strength = 0
+    if (password.length >= 8) strength++
+    if (/[A-Z]/.test(password)) strength++
+    if (/[a-z]/.test(password)) strength++
+    if (/[0-9]/.test(password)) strength++
+    if (/[^A-Za-z0-9]/.test(password)) strength++
+    return strength
+  }
+
+  const getPasswordStrengthColor = () => {
+    if (passwordStrength <= 1) return "bg-gray-400"
+    if (passwordStrength <= 3) return "bg-gray-600"
+    return "bg-gray-800 dark:bg-gray-200"
+  }
+
+  const getPasswordStrengthText = () => {
+    if (passwordStrength <= 1) return "Weak"
+    if (passwordStrength <= 3) return "Medium"
+    return "Strong"
+  }
+
   const handleDeleteUser = (userId: string) => {
     setData((prev) => prev.filter((user) => user.id !== userId))
     if (onDeleteUser) {
       onDeleteUser(userId)
     }
     setDeleteUserId(null)
+  }
+
+  const handleEditUser = (user: User) => {
+    setEditingUser(user)
+    setEditFormData({
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      role: user.role,
+      status: user.status,
+    })
+    if (onEditUser) {
+      onEditUser(user)
+    }
+  }
+
+  const handleSaveUser = () => {
+    if (!editingUser || !editFormData.firstName || !editFormData.lastName || !editFormData.email) {
+      return
+    }
+
+    const updatedUser: User = {
+      ...editingUser,
+      firstName: editFormData.firstName,
+      lastName: editFormData.lastName,
+      email: editFormData.email,
+      role: editFormData.role || editingUser.role,
+      status: editFormData.status || editingUser.status,
+    }
+
+    setData((prev) => prev.map((user) => (user.id === editingUser.id ? updatedUser : user)))
+
+    setEditingUser(null)
+    setEditFormData({})
+  }
+
+  const handleAddUserInputChange = (field: keyof UserFormData, value: string) => {
+    setAddFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }))
+
+    if (field === "email") {
+      setEmailValid(value ? validateEmail(value) : null)
+    }
+
+    if (field === "password") {
+      setPasswordStrength(calculatePasswordStrength(value))
+    }
+  }
+
+  const handleImageUpload = (file: File) => {
+    if (file && file.type.startsWith("image/")) {
+      setAddFormData((prev) => ({ ...prev, profileImage: file }))
+
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true)
+    } else if (e.type === "dragleave") {
+      setDragActive(false)
+    }
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragActive(false)
+
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleImageUpload(e.dataTransfer.files[0])
+    }
+  }
+
+  const handleAddUserSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (
+      !addFormData.firstName ||
+      !addFormData.lastName ||
+      !addFormData.email ||
+      !addFormData.password ||
+      !addFormData.role
+    ) {
+      return
+    }
+
+    // Check for duplicate email
+    const emailExists = data.some((user) => user.email.toLowerCase() === addFormData.email.toLowerCase())
+    if (emailExists) {
+      alert("A user with this email already exists!")
+      return
+    }
+
+    // Generate new user ID
+    const newUserId = `user_${Date.now()}`
+
+    // Create new user object
+    const newUser: User = {
+      id: newUserId,
+      firstName: addFormData.firstName,
+      lastName: addFormData.lastName,
+      email: addFormData.email,
+      role: addFormData.role as "admin" | "agent" | "user",
+      status: "active",
+      lastLogin: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+    }
+
+    // Add user to the list
+    setData((prev) => [newUser, ...prev])
+
+    // Reset form and close modal
+    resetAddUserForm()
+
+    if (onAddUser) {
+      onAddUser()
+    }
+  }
+
+  const resetAddUserForm = () => {
+    setAddFormData({
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      role: "",
+      profileImage: null,
+    })
+    setImagePreview(null)
+    setEmailValid(null)
+    setPasswordStrength(0)
+    setShowPassword(false)
+    setShowAddUserForm(false)
   }
 
   const columns: ColumnDef<User>[] = [
@@ -223,7 +457,7 @@ export default function UserList({ onEditUser, onDeleteUser, onAddUser }: UserLi
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-40">
-            <DropdownMenuItem onClick={() => onEditUser && onEditUser(row.original)} className="cursor-pointer">
+            <DropdownMenuItem onClick={() => handleEditUser(row.original)} className="cursor-pointer">
               <Edit className="mr-2 h-4 w-4" />
               Edit
             </DropdownMenuItem>
@@ -275,12 +509,13 @@ export default function UserList({ onEditUser, onDeleteUser, onAddUser }: UserLi
               </h1>
               <p className="text-gray-600 dark:text-gray-400 mt-2">Manage system users and their permissions</p>
             </div>
-              <Link href="/adduser">
-                <Button className="bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black">
-                  <UserPlus className="mr-2 h-4 w-4" />
-                  Add User
-                </Button>
-              </Link>
+            <Button
+              onClick={() => setShowAddUserForm(true)}
+              className="bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black"
+            >
+              <UserPlus className="mr-2 h-4 w-4" />
+              Add User
+            </Button>
           </div>
         </div>
 
@@ -436,6 +671,354 @@ export default function UserList({ onEditUser, onDeleteUser, onAddUser }: UserLi
             </div>
           </div>
         </div>
+
+        {/* Add User Form Dialog */}
+        <AlertDialog open={showAddUserForm} onOpenChange={resetAddUserForm}>
+          <AlertDialogContent className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 max-w-4xl max-h-[90vh] overflow-y-auto">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-3">
+                <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                  <UserPlus className="h-6 w-6 text-gray-700 dark:text-gray-300" />
+                </div>
+                Add New User
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-gray-600 dark:text-gray-400">
+                Register a new profile in the system with facial recognition capabilities
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+
+            <form onSubmit={handleAddUserSubmit} className="space-y-6">
+              {/* Photo Upload Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                  <Camera className="h-4 w-4" />
+                  Profile Photo
+                </div>
+                <div
+                  className={`relative border-2 border-dashed rounded-xl p-6 text-center transition-colors ${
+                    dragActive
+                      ? "border-gray-400 bg-gray-50 dark:bg-gray-800"
+                      : "border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500"
+                  }`}
+                  onDragEnter={handleDrag}
+                  onDragLeave={handleDrag}
+                  onDragOver={handleDrag}
+                  onDrop={handleDrop}
+                >
+                  {imagePreview ? (
+                    <div className="space-y-4">
+                      <img
+                        src={imagePreview || "/placeholder.svg"}
+                        alt="Preview"
+                        className="w-24 h-24 rounded-full mx-auto object-cover border-4 border-white dark:border-gray-800 shadow-lg grayscale"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300"
+                        onClick={() => {
+                          setImagePreview(null)
+                          setAddFormData((prev) => ({ ...prev, profileImage: null }))
+                        }}
+                      >
+                        Change Photo
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <Upload className="h-8 w-8 text-gray-400 mx-auto" />
+                      <div>
+                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Drop a photo here</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">or click to select</p>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300"
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        Choose File
+                      </Button>
+                    </div>
+                  )}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files[0]) {
+                        handleImageUpload(e.target.files[0])
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Personal Info */}
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="addFirstName" className="text-gray-700 dark:text-gray-300">
+                    First Name *
+                  </Label>
+                  <Input
+                    id="addFirstName"
+                    value={addFormData.firstName}
+                    onChange={(e) => handleAddUserInputChange("firstName", e.target.value)}
+                    placeholder="John"
+                    className="border-gray-300 dark:border-gray-600"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="addLastName" className="text-gray-700 dark:text-gray-300">
+                    Last Name *
+                  </Label>
+                  <Input
+                    id="addLastName"
+                    value={addFormData.lastName}
+                    onChange={(e) => handleAddUserInputChange("lastName", e.target.value)}
+                    placeholder="Doe"
+                    className="border-gray-300 dark:border-gray-600"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Email */}
+              <div className="space-y-2">
+                <Label htmlFor="addEmail" className="text-gray-700 dark:text-gray-300">
+                  Email Address *
+                </Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="addEmail"
+                    type="email"
+                    value={addFormData.email}
+                    onChange={(e) => handleAddUserInputChange("email", e.target.value)}
+                    placeholder="john.doe@company.com"
+                    className={`pl-10 border-gray-300 dark:border-gray-600 ${
+                      emailValid === false
+                        ? "border-red-500"
+                        : emailValid === true
+                          ? "border-gray-600 dark:border-gray-400"
+                          : ""
+                    }`}
+                    required
+                  />
+                  {emailValid !== null && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      {emailValid ? (
+                        <Check className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                      ) : (
+                        <X className="h-4 w-4 text-red-500" />
+                      )}
+                    </div>
+                  )}
+                </div>
+                {emailValid === false && (
+                  <p className="text-sm text-red-600 flex items-center gap-2">
+                    <AlertCircle className="h-4 w-4" />
+                    Please enter a valid email address
+                  </p>
+                )}
+              </div>
+
+              {/* Password */}
+              <div className="space-y-2">
+                <Label htmlFor="addPassword" className="text-gray-700 dark:text-gray-300">
+                  Password *
+                </Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="addPassword"
+                    type={showPassword ? "text" : "password"}
+                    value={addFormData.password}
+                    onChange={(e) => handleAddUserInputChange("password", e.target.value)}
+                    placeholder="••••••••"
+                    className="pl-10 pr-10 border-gray-300 dark:border-gray-600"
+                    required
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 text-gray-400 hover:text-gray-600"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                  </Button>
+                </div>
+                {addFormData.password && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                        <div
+                          className={`h-1.5 rounded-full transition-all ${getPasswordStrengthColor()}`}
+                          style={{ width: `${(passwordStrength / 5) * 100}%` }}
+                        />
+                      </div>
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                        {getPasswordStrengthText()}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Role */}
+              <div className="space-y-2">
+                <Label htmlFor="addRole" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Role *
+                </Label>
+                <Select onValueChange={(value) => handleAddUserInputChange("role", value)} value={addFormData.role}>
+                  <SelectTrigger className="border-gray-300 dark:border-gray-600">
+                    <SelectValue placeholder="Select a role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {roles.map((role) => (
+                      <SelectItem key={role.value} value={role.value}>
+                        <div className="flex items-center gap-3">
+                          <span className="text-lg grayscale">{role.icon}</span>
+                          <div>
+                            <div className="font-medium text-gray-900 dark:text-gray-100">{role.label}</div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">{role.description}</div>
+                          </div>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <AlertDialogFooter className="pt-6">
+                <AlertDialogCancel
+                  onClick={resetAddUserForm}
+                  className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300"
+                >
+                  Cancel
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  type="submit"
+                  className="bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black"
+                >
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Create User
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </form>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Edit User Dialog */}
+        <AlertDialog open={!!editingUser} onOpenChange={() => setEditingUser(null)}>
+          <AlertDialogContent className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 max-w-md">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-gray-900 dark:text-gray-100">Edit User</AlertDialogTitle>
+              <AlertDialogDescription className="text-gray-600 dark:text-gray-400">
+                Update user information and permissions.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="firstName" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    First Name
+                  </Label>
+                  <Input
+                    id="firstName"
+                    value={editFormData.firstName || ""}
+                    onChange={(e) => setEditFormData((prev) => ({ ...prev, firstName: e.target.value }))}
+                    className="border-gray-300 dark:border-gray-600"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="lastName" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Last Name
+                  </Label>
+                  <Input
+                    id="lastName"
+                    value={editFormData.lastName || ""}
+                    onChange={(e) => setEditFormData((prev) => ({ ...prev, lastName: e.target.value }))}
+                    className="border-gray-300 dark:border-gray-600"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Email
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={editFormData.email || ""}
+                  onChange={(e) => setEditFormData((prev) => ({ ...prev, email: e.target.value }))}
+                  className="border-gray-300 dark:border-gray-600"
+                />
+              </div>
+              <div>
+                <Label htmlFor="role" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Role
+                </Label>
+                <Select
+                  value={editFormData.role || ""}
+                  onValueChange={(value) =>
+                    setEditFormData((prev) => ({ ...prev, role: value as "admin" | "agent" | "user" }))
+                  }
+                >
+                  <SelectTrigger className="border-gray-300 dark:border-gray-600">
+                    <SelectValue placeholder="Select role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="admin">👑 Admin</SelectItem>
+                    <SelectItem value="agent">🛡️ Agent</SelectItem>
+                    <SelectItem value="user">👤 User</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="status" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Status
+                </Label>
+                <Select
+                  value={editFormData.status || ""}
+                  onValueChange={(value) =>
+                    setEditFormData((prev) => ({ ...prev, status: value as "active" | "inactive" }))
+                  }
+                >
+                  <SelectTrigger className="border-gray-300 dark:border-gray-600">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <AlertDialogFooter>
+              <AlertDialogCancel
+                onClick={() => {
+                  setEditingUser(null)
+                  setEditFormData({})
+                }}
+                className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300"
+              >
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleSaveUser}
+                className="bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black"
+              >
+                Save Changes
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         {/* Delete Confirmation Dialog */}
         <AlertDialog open={!!deleteUserId} onOpenChange={() => setDeleteUserId(null)}>

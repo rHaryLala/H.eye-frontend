@@ -82,10 +82,16 @@ export default function AttendancePage() {
   const [isOnline, setIsOnline] = useState(true)
   const [lastSync, setLastSync] = useState(new Date())
   const [debugInfo, setDebugInfo] = useState<string>("")
+  const [isPageLoaded, setIsPageLoaded] = useState(false)
 
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
+
+  // Page load animation
+  useEffect(() => {
+    setIsPageLoaded(true)
+  }, [])
 
   // Update current time every second
   useEffect(() => {
@@ -245,38 +251,42 @@ export default function AttendancePage() {
     switch (status) {
       case "present":
         return (
-          <Badge className="bg-gray-800 text-white dark:bg-gray-200 dark:text-black border-0">
+          <Badge className="bg-gray-800 text-white dark:bg-gray-200 dark:text-black border-0 transition-all duration-300 hover:scale-105">
             <CheckCircle className="h-3 w-3 mr-1" />
             Present
           </Badge>
         )
       case "checked-in":
         return (
-          <Badge className="bg-gray-600 text-white dark:bg-gray-400 dark:text-black border-0">
+          <Badge className="bg-gray-600 text-white dark:bg-gray-400 dark:text-black border-0 transition-all duration-300 hover:scale-105">
             <UserCheck className="h-3 w-3 mr-1" />
             Checked In
           </Badge>
         )
       case "absent":
         return (
-          <Badge className="bg-gray-400 text-white dark:bg-gray-600 dark:text-white border-0">
+          <Badge className="bg-gray-400 text-white dark:bg-gray-600 dark:text-white border-0 transition-all duration-300 hover:scale-105">
             <UserX className="h-3 w-3 mr-1" />
             Absent
           </Badge>
         )
       default:
-        return <Badge className="bg-gray-300 text-gray-900 dark:bg-gray-700 dark:text-gray-300 border-0">Unknown</Badge>
+        return (
+          <Badge className="bg-gray-300 text-gray-900 dark:bg-gray-700 dark:text-gray-300 border-0 transition-all duration-300 hover:scale-105">
+            Unknown
+          </Badge>
+        )
     }
   }
 
   const getRecognitionStatusColor = () => {
     switch (recognitionStatus) {
       case "scanning":
-        return "border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20"
+        return "border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20 shadow-yellow-200 dark:shadow-yellow-900/50"
       case "success":
-        return "border-green-500 bg-green-50 dark:bg-green-900/20"
+        return "border-green-500 bg-green-50 dark:bg-green-900/20 shadow-green-200 dark:shadow-green-900/50"
       case "failed":
-        return "border-red-500 bg-red-50 dark:bg-red-900/20"
+        return "border-red-500 bg-red-50 dark:bg-red-900/20 shadow-red-200 dark:shadow-red-900/50"
       default:
         return "border-gray-300 dark:border-gray-600"
     }
@@ -335,27 +345,35 @@ export default function AttendancePage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-black dark:to-gray-800">
       <div className="container mx-auto py-12 px-4 md:px-6">
         {/* Header */}
-        <div className="mb-8">
+        <div
+          className={`mb-8 transition-all duration-1000 ease-out ${
+            isPageLoaded ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-8"
+          }`}
+        >
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 via-black to-gray-800 dark:from-white dark:via-gray-100 dark:to-gray-300 bg-clip-text text-transparent">
                 Facial Recognition Attendance
               </h1>
-              <p className="text-gray-600 dark:text-gray-400 mt-2">
+              <p className="text-gray-600 dark:text-gray-400 mt-2 transition-all duration-500 delay-200">
                 Secure attendance tracking with biometric verification
               </p>
             </div>
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
+              <div
+                className={`flex items-center gap-2 transition-all duration-500 ${
+                  isOnline ? "text-green-600" : "text-red-500"
+                }`}
+              >
                 {isOnline ? (
-                  <Wifi className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                  <Wifi className="h-5 w-5 transition-all duration-300" />
                 ) : (
-                  <WifiOff className="h-5 w-5 text-red-500" />
+                  <WifiOff className="h-5 w-5 animate-pulse" />
                 )}
-                <span className="text-sm text-gray-600 dark:text-gray-400">{isOnline ? "Online" : "Offline"}</span>
+                <span className="text-sm">{isOnline ? "Online" : "Offline"}</span>
               </div>
               <div className="text-right">
-                <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 transition-all duration-300">
                   {currentTime.toLocaleTimeString()}
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">{currentTime.toLocaleDateString()}</div>
@@ -366,11 +384,15 @@ export default function AttendancePage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Camera Section */}
-          <div className="lg:col-span-1">
-            <Card className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+          <div
+            className={`lg:col-span-1 transition-all duration-1000 ease-out delay-300 ${
+              isPageLoaded ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"
+            }`}
+          >
+            <Card className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 transition-all duration-300 hover:shadow-lg hover:shadow-gray-200/50 dark:hover:shadow-gray-900/50">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-gray-100">
-                  <Camera className="h-5 w-5" />
+                  <Camera className="h-5 w-5 transition-transform duration-300 hover:scale-110" />
                   Camera Scanner
                 </CardTitle>
                 <CardDescription className="text-gray-600 dark:text-gray-400">
@@ -379,7 +401,11 @@ export default function AttendancePage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Camera Preview */}
-                <div className={`relative rounded-lg border-2 ${getRecognitionStatusColor()} overflow-hidden`}>
+                <div
+                  className={`relative rounded-lg border-2 overflow-hidden transition-all duration-500 ${getRecognitionStatusColor()} ${
+                    recognitionStatus !== "idle" ? "shadow-lg" : ""
+                  }`}
+                >
                   {isRecording ? (
                     <div className="relative">
                       <video
@@ -394,7 +420,7 @@ export default function AttendancePage() {
                           objectFit: "cover",
                           backgroundColor: "#f3f4f6",
                         }}
-                        className="bg-gray-100 dark:bg-gray-800"
+                        className="bg-gray-100 dark:bg-gray-800 transition-all duration-300"
                         onLoadedMetadata={() => console.log("Video metadata loaded")}
                         onCanPlay={() => console.log("Video can play")}
                         onPlaying={() => console.log("Video is playing")}
@@ -402,56 +428,55 @@ export default function AttendancePage() {
                       />
                       {/* Face detection overlay */}
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-48 h-48 border-2 border-white rounded-lg opacity-50"></div>
+                        <div
+                          className={`w-48 h-48 border-2 border-white rounded-lg transition-all duration-500 ${
+                            recognitionStatus === "scanning" ? "animate-pulse scale-105" : "opacity-50"
+                          }`}
+                        ></div>
                       </div>
                       {/* Recognition status overlay */}
                       {recognitionStatus !== "idle" && (
-                        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-all duration-300 animate-in fade-in">
                           <div className="text-center text-white">
                             {recognitionStatus === "scanning" && (
-                              <>
+                              <div className="animate-in slide-in-from-bottom-4 duration-500">
                                 <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-2" />
-                                <p>Scanning face...</p>
-                              </>
+                                <p className="animate-pulse">Scanning face...</p>
+                              </div>
                             )}
                             {recognitionStatus === "success" && (
-                              <>
-                                <CheckCircle className="h-8 w-8 text-green-400 mx-auto mb-2" />
+                              <div className="animate-in zoom-in-50 duration-500">
+                                <CheckCircle className="h-8 w-8 text-green-400 mx-auto mb-2 animate-bounce" />
                                 <p>Recognition successful!</p>
-                                <p className="text-sm mt-1">Welcome, {recognizedUser}</p>
-                              </>
+                                <p className="text-sm mt-1 animate-in slide-in-from-bottom-2 duration-700 delay-200">
+                                  Welcome, {recognizedUser}
+                                </p>
+                              </div>
                             )}
                             {recognitionStatus === "failed" && (
-                              <>
+                              <div className="animate-in shake duration-500">
                                 <UserX className="h-8 w-8 text-red-400 mx-auto mb-2" />
                                 <p>Recognition failed</p>
                                 <p className="text-sm mt-1">Please try again</p>
-                              </>
+                              </div>
                             )}
                           </div>
                         </div>
                       )}
                     </div>
                   ) : (
-                    <div className="w-full h-64 bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                    <div className="w-full h-64 bg-gray-100 dark:bg-gray-800 flex items-center justify-center transition-all duration-300">
                       <div className="text-center text-gray-500 dark:text-gray-400">
-                        <CameraOff className="h-12 w-12 mx-auto mb-2" />
+                        <CameraOff className="h-12 w-12 mx-auto mb-2 transition-transform duration-300 hover:scale-110" />
                         <p>Camera not active</p>
                       </div>
                     </div>
                   )}
                 </div>
 
-                {/* Debug Information - Remove this in production */}
-                {isRecording && debugInfo && (
-                  <div className="text-xs text-gray-500 bg-gray-100 dark:bg-gray-800 p-2 rounded">
-                    <pre>{debugInfo}</pre>
-                  </div>
-                )}
-
                 {/* Camera permission alert */}
                 {cameraPermission === "denied" && (
-                  <Alert className="border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-900/20">
+                  <Alert className="border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-900/20 animate-in slide-in-from-top-2 duration-500">
                     <Camera className="h-4 w-4 text-red-600" />
                     <AlertDescription className="text-red-800 dark:text-red-200">
                       Camera access denied. Please enable camera permissions in your browser settings.
@@ -464,9 +489,9 @@ export default function AttendancePage() {
                   {!isRecording ? (
                     <Button
                       onClick={startCamera}
-                      className="flex-1 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black"
+                      className="flex-1 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black transition-all duration-300 hover:scale-105 hover:shadow-lg"
                     >
-                      <Camera className="h-4 w-4 mr-2" />
+                      <Camera className="h-4 w-4 mr-2 transition-transform duration-300 group-hover:scale-110" />
                       Start Camera
                     </Button>
                   ) : (
@@ -474,7 +499,7 @@ export default function AttendancePage() {
                       <Button
                         onClick={capturePhoto}
                         disabled={recognitionStatus === "scanning"}
-                        className="flex-1 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black"
+                        className="flex-1 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black transition-all duration-300 hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                       >
                         {recognitionStatus === "scanning" ? (
                           <>
@@ -483,12 +508,16 @@ export default function AttendancePage() {
                           </>
                         ) : (
                           <>
-                            <Zap className="h-4 w-4 mr-2" />
+                            <Zap className="h-4 w-4 mr-2 transition-transform duration-300 group-hover:scale-110" />
                             Scan Face
                           </>
                         )}
                       </Button>
-                      <Button onClick={stopCamera} variant="outline" className="border-gray-300 dark:border-gray-600">
+                      <Button
+                        onClick={stopCamera}
+                        variant="outline"
+                        className="border-gray-300 dark:border-gray-600 transition-all duration-300 hover:scale-105 hover:shadow-md"
+                      >
                         <CameraOff className="h-4 w-4" />
                       </Button>
                     </>
@@ -500,25 +529,29 @@ export default function AttendancePage() {
             </Card>
 
             {/* Quick Stats */}
-            <Card className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 mt-6">
+            <Card className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 mt-6 transition-all duration-300 hover:shadow-lg hover:shadow-gray-200/50 dark:hover:shadow-gray-900/50">
               <CardHeader>
                 <CardTitle className="text-gray-900 dark:text-gray-100">Today's Summary</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">3</div>
+                  <div className="text-center transition-all duration-300 hover:scale-105">
+                    <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 transition-all duration-300">
+                      3
+                    </div>
                     <div className="text-sm text-gray-600 dark:text-gray-400">Present</div>
                   </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">1</div>
+                  <div className="text-center transition-all duration-300 hover:scale-105">
+                    <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 transition-all duration-300">
+                      1
+                    </div>
                     <div className="text-sm text-gray-600 dark:text-gray-400">Absent</div>
                   </div>
                 </div>
                 <Separator className="bg-gray-200 dark:bg-gray-700" />
                 <div className="text-center">
                   <div className="text-sm text-gray-600 dark:text-gray-400">Last sync</div>
-                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100 transition-all duration-300">
                     {lastSync.toLocaleTimeString()}
                   </div>
                 </div>
@@ -527,8 +560,12 @@ export default function AttendancePage() {
           </div>
 
           {/* Attendance Records */}
-          <div className="lg:col-span-2">
-            <Card className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+          <div
+            className={`lg:col-span-2 transition-all duration-1000 ease-out delay-500 ${
+              isPageLoaded ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8"
+            }`}
+          >
+            <Card className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 transition-all duration-300 hover:shadow-lg hover:shadow-gray-200/50 dark:hover:shadow-gray-900/50">
               <CardHeader>
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div>
@@ -538,12 +575,18 @@ export default function AttendancePage() {
                     </CardDescription>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button variant="outline" className="border-gray-300 dark:border-gray-600">
-                      <Download className="h-4 w-4 mr-2" />
+                    <Button
+                      variant="outline"
+                      className="border-gray-300 dark:border-gray-600 transition-all duration-300 hover:scale-105 hover:shadow-md"
+                    >
+                      <Download className="h-4 w-4 mr-2 transition-transform duration-300 group-hover:scale-110" />
                       Export
                     </Button>
-                    <Button variant="outline" className="border-gray-300 dark:border-gray-600">
-                      <RefreshCw className="h-4 w-4" />
+                    <Button
+                      variant="outline"
+                      className="border-gray-300 dark:border-gray-600 transition-all duration-300 hover:scale-105 hover:shadow-md hover:rotate-180"
+                    >
+                      <RefreshCw className="h-4 w-4 transition-transform duration-300" />
                     </Button>
                   </div>
                 </div>
@@ -552,16 +595,16 @@ export default function AttendancePage() {
                 {/* Filters */}
                 <div className="flex flex-col md:flex-row gap-4">
                   <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 transition-all duration-300" />
                     <Input
                       placeholder="Search employees..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10 border-gray-300 dark:border-gray-600"
+                      className="pl-10 border-gray-300 dark:border-gray-600 transition-all duration-300 focus:scale-105 focus:shadow-md"
                     />
                   </div>
                   <Select value={filterStatus} onValueChange={setFilterStatus}>
-                    <SelectTrigger className="w-full md:w-[180px] border-gray-300 dark:border-gray-600">
+                    <SelectTrigger className="w-full md:w-[180px] border-gray-300 dark:border-gray-600 transition-all duration-300 hover:scale-105 hover:shadow-md">
                       <SelectValue placeholder="Filter by status" />
                     </SelectTrigger>
                     <SelectContent>
@@ -574,7 +617,7 @@ export default function AttendancePage() {
                 </div>
 
                 {/* Attendance Table */}
-                <div className="rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
                   <Table>
                     <TableHeader className="bg-gray-50 dark:bg-gray-800">
                       <TableRow className="border-gray-200 dark:border-gray-700">
@@ -587,51 +630,54 @@ export default function AttendancePage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredRecords.map((record) => (
+                      {filteredRecords.map((record, index) => (
                         <TableRow
                           key={record.id}
-                          className="border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
+                          className={`border-gray-200 dark:border-gray-700 transition-all duration-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:scale-[1.01] hover:shadow-md animate-in slide-in-from-bottom-2`}
+                          style={{ animationDelay: `${index * 100}ms` }}
                         >
                           <TableCell>
                             <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                              <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center transition-all duration-300 hover:scale-110">
                                 <User className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                               </div>
                               <div>
-                                <div className="font-medium text-gray-900 dark:text-gray-100">{record.name}</div>
+                                <div className="font-medium text-gray-900 dark:text-gray-100 transition-all duration-300">
+                                  {record.name}
+                                </div>
                                 <div className="text-sm text-gray-600 dark:text-gray-400">{record.date}</div>
                               </div>
                             </div>
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
-                              <Clock className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                              <Clock className="h-4 w-4 text-gray-500 dark:text-gray-400 transition-transform duration-300 hover:scale-110" />
                               <span className="text-gray-900 dark:text-gray-100">{record.checkIn}</span>
                             </div>
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
-                              <Clock className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                              <Clock className="h-4 w-4 text-gray-500 dark:text-gray-400 transition-transform duration-300 hover:scale-110" />
                               <span className="text-gray-900 dark:text-gray-100">{record.checkOut}</span>
                             </div>
                           </TableCell>
                           <TableCell>{getStatusBadge(record.status)}</TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
-                              <MapPin className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                              <MapPin className="h-4 w-4 text-gray-500 dark:text-gray-400 transition-transform duration-300 hover:scale-110" />
                               <span className="text-gray-600 dark:text-gray-400">{record.location}</span>
                             </div>
                           </TableCell>
                           <TableCell>
                             {record.confidence > 0 ? (
                               <div className="flex items-center gap-2">
-                                <div className="w-16 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                <div className="w-16 bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
                                   <div
-                                    className="bg-gray-800 dark:bg-gray-200 h-2 rounded-full"
+                                    className="bg-gray-800 dark:bg-gray-200 h-2 rounded-full transition-all duration-1000 ease-out"
                                     style={{ width: `${record.confidence}%` }}
                                   ></div>
                                 </div>
-                                <span className="text-sm text-gray-600 dark:text-gray-400">
+                                <span className="text-sm text-gray-600 dark:text-gray-400 transition-all duration-300">
                                   {record.confidence.toFixed(1)}%
                                 </span>
                               </div>
@@ -646,7 +692,7 @@ export default function AttendancePage() {
                 </div>
 
                 {filteredRecords.length === 0 && (
-                  <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                  <div className="text-center py-8 text-gray-500 dark:text-gray-400 animate-in fade-in duration-500">
                     No attendance records found matching your criteria.
                   </div>
                 )}
@@ -655,6 +701,109 @@ export default function AttendancePage() {
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes shake {
+          0%,
+          100% {
+            transform: translateX(0);
+          }
+          10%,
+          30%,
+          50%,
+          70%,
+          90% {
+            transform: translateX(-2px);
+          }
+          20%,
+          40%,
+          60%,
+          80% {
+            transform: translateX(2px);
+          }
+        }
+
+        .animate-shake {
+          animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes zoom-in-50 {
+          0% {
+            opacity: 0;
+            transform: scale(0.5);
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+
+        .animate-zoom-in-50 {
+          animation: zoom-in-50 0.5s ease-out;
+        }
+
+        @keyframes slide-in-from-bottom-2 {
+          0% {
+            opacity: 0;
+            transform: translateY(8px);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .animate-slide-in-from-bottom-2 {
+          animation: slide-in-from-bottom-2 0.3s ease-out;
+        }
+
+        @keyframes slide-in-from-bottom-4 {
+          0% {
+            opacity: 0;
+            transform: translateY(16px);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .animate-slide-in-from-bottom-4 {
+          animation: slide-in-from-bottom-4 0.5s ease-out;
+        }
+
+        @keyframes slide-in-from-top-2 {
+          0% {
+            opacity: 0;
+            transform: translateY(-8px);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .animate-slide-in-from-top-2 {
+          animation: slide-in-from-top-2 0.3s ease-out;
+        }
+
+        @keyframes fade-in {
+          0% {
+            opacity: 0;
+          }
+          100% {
+            opacity: 1;
+          }
+        }
+
+        .animate-fade-in {
+          animation: fade-in 0.3s ease-out;
+        }
+
+        .animate-in {
+          animation-fill-mode: both;
+        }
+      `}</style>
     </div>
   )
 }

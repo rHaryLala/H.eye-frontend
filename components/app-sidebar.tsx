@@ -60,6 +60,16 @@ const data = {
       icon: IconChartBar,
     },
     {
+      title: "Presence",
+      url: "/presence",
+      icon: IconReport,
+    },
+    {
+      title: "Geolocation",
+      url: "/geolocation",
+      icon: IconSearch,
+    },
+    {
       title: "History",
       url: "/history",
       icon: IconFolder,
@@ -129,27 +139,12 @@ const data = {
       url: "/help",
       icon: IconHelp,
     },
-    {
-      title: "Search",
-      url: "#",
-      icon: IconSearch,
-    },
   ],
   documents: [
     {
       name: "Data Library",
       url: "/library",
       icon: IconDatabase,
-    },
-    {
-      name: "Reports",
-      url: "#",
-      icon: IconReport,
-    },
-    {
-      name: "Word Assistant",
-      url: "#",
-      icon: IconFileWord,
     },
   ],
 }

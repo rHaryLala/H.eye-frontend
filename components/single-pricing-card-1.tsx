@@ -64,7 +64,7 @@ export function Pricing() {
 									<div className="text-muted-foreground flex items-end gap-0.5 text-xl">
 										<span>Ar</span>
 										<span className="text-foreground -mb-0.5 text-4xl font-extrabold tracking-tighter md:text-5xl">
-											49 000
+											250 000
 										</span>
 										<span>/month</span>
 									</div>
@@ -91,7 +91,7 @@ export function Pricing() {
 									<div className="text-muted-foreground flex items-end text-xl">
 										<span>Ar</span>
 										<span className="text-foreground -mb-0.5 text-4xl font-extrabold tracking-tighter md:text-5xl">
-											39 000
+											200 000
 										</span>
 										<span>/month</span>
 									</div>

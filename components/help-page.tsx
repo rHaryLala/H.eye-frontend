@@ -580,8 +580,8 @@ export default function HelpPage() {
               <CardContent className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-gray-700 dark:text-gray-300">Facial Recognition API</span>
-                  <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300 border-0">
-                    Operational
+                  <Badge className="bg-red-700 text-white dark:bg-green-900 dark:text-green-300 border-0">
+                    Not operational
                   </Badge>
                 </div>
                 <div className="flex items-center justify-between">
